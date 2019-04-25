@@ -1,0 +1,68 @@
+from math import inf
+
+def prox(beta,phi):                           #função que realiza o passo 4
+    beta2=beta[:]
+    for i in range(len(beta)):
+        if (phi[i] == 1):
+            beta2[i] = inf
+    #print(beta)
+    if (min(beta2)<inf):
+        return beta2.index(min(beta2))
+    else:
+        return False
+
+def predecessores(caminho,vertices):
+    for i in range(len(caminho)):
+        if type(caminho[i]) is int:
+            caminho[i] = vertices[caminho[i]]
+    return(caminho)
+
+def dijkstra(alpha,  vertices ,u, v):
+
+    u = vertices.index(u)
+    v = vertices.index(v)
+    beta=[]
+    phi=[]
+    pi=[]
+
+    for aux in range(len(alpha)):
+        beta.append(inf)
+        phi.append(0)
+        pi.append('zero')
+    beta[u] = 0
+    phi[u] = 1
+
+    w = u
+    while(w != v):
+        # print("beta: ", beta, "phi: ", phi, "pi: ", pi ,"\n")
+        # print("w: ", w ,"\n")
+        for r in range(len(alpha)):
+            if(phi[r] == 0):
+                if (beta[r] > beta[w] + alpha[w][r]):
+                    beta[r] = beta[w] + alpha[w][r]
+                    pi[r] = w
+        w = prox(beta,phi)
+        phi[w] = 1
+    pi = predecessores(pi,vertices)
+    return pi
+
+
+
+vertice=['A','B','C','D']
+matriz=[[0,1,4,9],[inf,0,2,9],[inf,inf,0,4],[inf,inf,inf,0]]
+
+vertice2=['A','B','C','D','E','F','G','H']
+matriz2=[[0,1,2,inf,inf,inf,inf,inf],
+         [inf,0,inf,3,1,inf,inf,inf],
+         [inf,inf,0,inf,inf,inf,2,inf],
+         [inf,inf,inf,0,inf,1,inf,inf],
+         [inf,inf,inf,inf,0,5,inf,inf],
+         [inf,inf,inf,inf,inf,0,inf,inf],
+         [inf,inf,inf,inf,inf,inf,0,inf],
+         [inf,2,inf,2,inf,1,inf,0]]
+
+caminho = dijkstra(matriz2,vertice2, 'A','F')
+print(caminho)
+
+caminho2=dijkstra(matriz,vertice, 'B','D')
+print(caminho2)
