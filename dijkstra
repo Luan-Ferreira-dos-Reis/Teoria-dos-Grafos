@@ -17,18 +17,17 @@ def predecessores(caminho,vertices):
             caminho[i] = vertices[caminho[i]]
     return(caminho)
 
-def dijkstra(alpha,  vertices ,u, v):
-
+def dijkstra(alpha,  vertices ,u, v):        # recebe(matriz com peso das arestas, nome dos vertices, vertice inicial e vertice final) retorna os predecessores
     u = vertices.index(u)
     v = vertices.index(v)
     beta=[]
     phi=[]
     pi=[]
-
+                                            #passo 1 e 2
     for aux in range(len(alpha)):
         beta.append(inf)
         phi.append(0)
-        pi.append('zero')
+        pi.append('ZO')
     beta[u] = 0
     phi[u] = 1
 
@@ -36,33 +35,82 @@ def dijkstra(alpha,  vertices ,u, v):
     while(w != v):
         # print("beta: ", beta, "phi: ", phi, "pi: ", pi ,"\n")
         # print("w: ", w ,"\n")
-        for r in range(len(alpha)):
+        for r in range(len(alpha)):                   #passo 3
             if(phi[r] == 0):
                 if (beta[r] > beta[w] + alpha[w][r]):
                     beta[r] = beta[w] + alpha[w][r]
                     pi[r] = w
-        w = prox(beta,phi)
+        w = prox(beta,phi)                             #passo4
         phi[w] = 1
+        if not (w):
+            break
     pi = predecessores(pi,vertices)
     return pi
 
+vertice2=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+matriz2=[[0  ,   4,   3, inf,   2, inf, inf, inf, inf, inf],
+         [inf,   0, inf,   2,   3, inf, inf, inf, inf, inf],
+         [inf, inf,   0, inf, inf,   2,   1, inf, inf, inf],
+         [inf, inf, inf,   0, inf, inf, inf,   7, inf, inf],
+         [inf, inf, inf, inf,   0, inf, inf,   4, inf, inf],
+         [inf, inf, inf, inf, inf,   0, inf, inf,   3, inf],
+         [inf, inf, inf,   1, inf, inf,   0, inf,   1, inf],
+         [inf, inf, inf, inf, inf, inf, inf,   0, inf,   1],
+         [inf, inf, inf, inf, inf, inf, inf, inf,   0,  inf],
+         [inf, inf, inf, inf, inf, inf, inf, inf,   5,   0]]
+
+matrizb=[[0  , inf, inf, inf, inf, inf, inf, inf, inf, inf],
+         [inf,   0, inf, inf, inf, inf, inf, inf, inf, inf],
+         [inf, inf,   0, inf, inf, inf, inf, inf, inf, inf],
+         [inf, inf, inf,   0, inf, inf, inf, inf, inf, inf],
+         [inf, inf, inf, inf,   0, inf, inf, inf, inf, inf],
+         [inf, inf, inf, inf, inf,   0, inf, inf, inf, inf],
+         [inf, inf, inf, inf, inf, inf,   0, inf, inf, inf],
+         [inf, inf, inf, inf, inf, inf, inf,   0, inf, inf],
+         [inf, inf, inf, inf, inf, inf, inf, inf,   0, inf],
+         [inf, inf, inf, inf, inf, inf, inf, inf, inf,   0]]
 
 
-vertice=['A','B','C','D']
-matriz=[[0,1,4,9],[inf,0,2,9],[inf,inf,0,4],[inf,inf,inf,0]]
+verticesR5 = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26",
+              "27","28","29","30","31","32","33"]
+          #   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33
+matrizR5 =[[  0,  1,  1,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #1
+           [inf,  0,inf,inf,  1,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #2
+           [inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #3
+           [inf,inf,  1,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #4
+           [inf,inf,inf,inf,  0,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #5
+           [inf,  1,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #6
+           [inf,inf,inf,inf,inf,  1,  0,inf,inf,  1,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #7
+           [inf,inf,inf,inf,inf,inf,  1,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #8
+           [inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #9
+           [inf,inf,inf,inf,inf,inf,inf,inf,  1,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #10
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #11
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #12
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #13
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,  1,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #14
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #15
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #16
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #17
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  1,  0,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #18
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  1,  0,inf,inf,inf,inf,  1,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #19
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #20
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,  1,  1,inf,inf,inf,inf,inf,inf,inf],    #21
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,  1,inf,  1,  1,inf,inf,inf,inf,inf,inf,inf],    #22
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  1,inf,inf,inf,  0,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf],    #23
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,  1,  1,inf,inf,inf,inf,inf],    #24
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,inf,inf,inf,inf,inf],    #25
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,inf,inf,inf,inf],    #26
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  1,inf,inf,inf,  0,inf,inf,inf,  1,inf,inf],    #27
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf,inf,inf,inf,inf],    #28
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,  1,inf,inf,inf],    #29
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,  1,inf,inf],    #30
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,  1,  1],    #31
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0,inf],    #32
+           [inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,inf,  0]]    #33
+#             1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33
 
-vertice2=['A','B','C','D','E','F','G','H']
-matriz2=[[0,1,2,inf,inf,inf,inf,inf],
-         [inf,0,inf,3,1,inf,inf,inf],
-         [inf,inf,0,inf,inf,inf,2,inf],
-         [inf,inf,inf,0,inf,1,inf,inf],
-         [inf,inf,inf,inf,0,5,inf,inf],
-         [inf,inf,inf,inf,inf,0,inf,inf],
-         [inf,inf,inf,inf,inf,inf,0,inf],
-         [inf,2,inf,2,inf,1,inf,0]]
 
-caminho = dijkstra(matriz2,vertice2, 'A','F')
-print(caminho)
 
-caminho2=dijkstra(matriz,vertice, 'B','D')
-print(caminho2)
+caminho_drone = dijkstra(matrizR5,verticesR5,"01","32")
+print("Vértices:      ",verticesR5)
+print("Predecessores: ",caminho_drone)
