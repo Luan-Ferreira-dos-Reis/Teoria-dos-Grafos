@@ -47,32 +47,6 @@ def dijkstra(alpha,  vertices ,u, v):        # recebe(matriz com peso das aresta
     pi = predecessores(pi,vertices)
     return pi
 
-vertice2=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-matriz2=[[0  ,   4,   3, inf,   2, inf, inf, inf, inf, inf],
-         [inf,   0, inf,   2,   3, inf, inf, inf, inf, inf],
-         [inf, inf,   0, inf, inf,   2,   1, inf, inf, inf],
-         [inf, inf, inf,   0, inf, inf, inf,   7, inf, inf],
-         [inf, inf, inf, inf,   0, inf, inf,   4, inf, inf],
-         [inf, inf, inf, inf, inf,   0, inf, inf,   3, inf],
-         [inf, inf, inf,   1, inf, inf,   0, inf,   1, inf],
-         [inf, inf, inf, inf, inf, inf, inf,   0, inf,   1],
-         [inf, inf, inf, inf, inf, inf, inf, inf,   0,  inf],
-         [inf, inf, inf, inf, inf, inf, inf, inf,   5,   0]]
-
-matrizb=[[0  , inf, inf, inf, inf, inf, inf, inf, inf, inf],
-         [inf,   0, inf, inf, inf, inf, inf, inf, inf, inf],
-         [inf, inf,   0, inf, inf, inf, inf, inf, inf, inf],
-         [inf, inf, inf,   0, inf, inf, inf, inf, inf, inf],
-         [inf, inf, inf, inf,   0, inf, inf, inf, inf, inf],
-         [inf, inf, inf, inf, inf,   0, inf, inf, inf, inf],
-         [inf, inf, inf, inf, inf, inf,   0, inf, inf, inf],
-         [inf, inf, inf, inf, inf, inf, inf,   0, inf, inf],
-         [inf, inf, inf, inf, inf, inf, inf, inf,   0, inf],
-         [inf, inf, inf, inf, inf, inf, inf, inf, inf,   0]]
-
-
-
-
 # matriz com o nome dos vértices(auxilia na leitura do caminho) 
 verticesR5 = ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26",
               "27","28","29","30","31","32","33"]
