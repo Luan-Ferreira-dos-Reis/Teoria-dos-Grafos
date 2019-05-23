@@ -1,0 +1,161 @@
+from math import inf
+import copy
+
+# classe vértice : tem um (id) para identificação
+class Vertice:
+    def __init__(self, id):
+        self.id = id
+        self.conexoes = []
+        self.vizinhos = []
+    def __str__(self):
+        return self.id
+    def add_aresta(self, aresta):
+        self.conexoes.append(aresta)
+        if aresta.vertice_i.id != self.id:
+            self.vizinhos.append(aresta.vertice_i)
+        else:
+            self.vizinhos.append(aresta.vertice_f)
+    def __eq__(self, other):
+        return self.id == other.id
+
+
+# Classe Aresta : tem um(id) , dois vertices que esta conecta, peso(defaut 1) e direção(default Falso)
+class Aresta:
+    def __init__(self, id, vertice_i, vertice_f, peso = 1 ,direcionada = False):
+        self.id = id
+        self.peso = peso
+        self.vertice_i = vertice_i
+        self.vertice_f = vertice_f
+        if self.vertice_i == self.vertice_f:
+            self.peso = 0
+        self.direcionada = direcionada
+    def __str__(self):
+        s = str(self.id)+": " + str(self.vertice_i)+ ' --[' + str(self.peso) + ']-- '+ str(self.vertice_f)
+        if self.direcionada:
+            s = str(self.id)+": " + str(self.vertice_i) + ' --[' + str(self.peso) + ']-> ' + str(self.vertice_f)
+        return(s)
+    def __eq__(self, other):
+        return self.id == other.id
+    def incide(self, vertice):
+        if (vertice == self.vertice_i or vertice == self.vertice_f):
+            return True
+        else:
+            return False
+
+# Classe Grafo : recebe vertices isolados, ou arestas com seus respectivos vértices
+class Grafo:
+    def __init__(self, vertices=[], arestas=[]):
+        self.vertices = vertices
+        self.arestas = arestas
+        for i in self.arestas:
+            if i.vertice_i not in self.vertices:
+                self.vertices.append(i.vertice_i)
+            if i.vertice_f not in self.vertices:
+                self.vertices.append(i.vertice_f)
+            i.vertice_i.add_aresta(i)
+            i.vertice_f.add_aresta(i)
+    def add_aresta(self, aresta):
+        if(aresta not in self.arestas):
+            self.arestas.append(aresta)
+            aresta.vertice_i.add_aresta(aresta)
+            if aresta.vertice_i not in self.vertices:
+                self.vertices.append(aresta.vertice_i)
+            aresta.vertice_f.add_aresta(aresta)
+            if aresta.vertice_f not in self.vertices:
+                self.vertices.append(aresta.vertice_f)
+    def remove_aresta(self, aresta):
+        if (aresta in self.arestas):
+            self.arestas.remove(aresta)
+    def add_vertice(self, vertice):
+        if(vertice not in self.vertices):
+            self.vertices.append(vertice)
+    def remove_vertice(self, vertice):
+        if (vertice in self.vertices):
+            self.vertices.remove(vertice)
+            for i in self.arestas:
+                if(i.vertice_i == vertice or i.vertice_f == vertice):
+                    self.remove_aresta(i)
+    def procura_vertice(self, vertice):
+        if vertice in self.vertices:
+            return True
+        else:
+            return False
+    def procura_aresta(self, aresta):
+        if aresta in self.arestas:
+            return True
+        else:
+            return False
+    def __str__(self):
+        mapa = "aresta: vertice_inicial -- [Peso] -- vertice_final (direcionado: sim = '->', nao = '--) \n"
+        for i in range(len(self.arestas)):
+            mapa = mapa + str(self.arestas[i]) +"\n"
+        return mapa
+
+
+
+
+def alg_Prim(g):
+    minimum = Grafo([],[])
+    original = copy.deepcopy(g)
+    minimum.add_vertice(g.vertices[0])
+    while(len(minimum.vertices)<len(g.vertices)):
+        peso_min = inf
+        pos_aresta_min = 0
+        for i in range(len(g.arestas)):
+            if (g.arestas[i].peso <= peso_min):
+                peso_min = g.arestas[i].peso
+                pos_aresta_min = i
+        if(g.arestas[pos_aresta_min].vertice_i in minimum.vertices) and (g.arestas[pos_aresta_min].vertice_f not in minimum.vertices) or\
+          (g.arestas[pos_aresta_min].vertice_f in minimum.vertices) and (g.arestas[pos_aresta_min].vertice_i not in minimum.vertices):
+            minimum.add_aresta(g.arestas[pos_aresta_min])
+            original.remove_aresta(g.arestas[pos_aresta_min])
+            g = copy.deepcopy(original)
+        else:
+            g.remove_aresta(g.arestas[pos_aresta_min])
+    return minimum
+
+A = Vertice('A')
+B = Vertice('B')
+C = Vertice('C')
+D = Vertice('D')
+E = Vertice('E')
+F = Vertice('F')
+G = Vertice('G')
+H = Vertice('H')
+I = Vertice('I')
+J = Vertice('J')
+
+
+a0 = Aresta('a0', A, C, 3)
+a1 = Aresta('a1', A, B, 5)
+a2 = Aresta('a2', A, D, 4)
+a3 = Aresta('a3', B, D, 7)
+a4 = Aresta('a4', D, E, 3)
+a5 = Aresta('a5', D, F, 1)
+a6 = Aresta('a6', B, F, 5)
+a7 = Aresta('a7', C, D, 2)
+a8 = Aresta('a8', E, F, 3)
+a9 = Aresta('a9', A, C, 5)
+a10 = Aresta('a10', A, G, 3)
+a11 = Aresta('a11', H, C, 8)
+a12 = Aresta('a12', E, H, 4)
+a13 = Aresta('a13', B, D, 3)
+a14 = Aresta('a14', I, E, 3)
+a15 = Aresta('a15', J, I, 1)
+a16 = Aresta('a16', H, G, 4)
+a17 = Aresta('a17', C, D, 6)
+a18 = Aresta('a18', A, C, 2)
+a19 = Aresta('a18', A, H, 1)
+
+print("Teste 1")
+g = Grafo([],[a0,a1,a2,a3,a4,a5,a6,a7,a8])
+print(g)
+g_prim = alg_Prim(g)
+print(g_prim)
+
+print("Teste 2")
+g2 = Grafo([],[a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19])
+print(g2)
+g2_prim = alg_Prim(g2)
+print(g2_prim)
+
