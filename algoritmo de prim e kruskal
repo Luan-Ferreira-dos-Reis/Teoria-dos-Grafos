@@ -96,6 +96,7 @@ class Grafo:
 
 def alg_Prim(g):
     minimum = Grafo([],[])
+    auxiliar = copy.deepcopy(g)
     original = copy.deepcopy(g)
     minimum.add_vertice(g.vertices[0])
     while(len(minimum.vertices)<len(g.vertices)):
@@ -108,10 +109,32 @@ def alg_Prim(g):
         if(g.arestas[pos_aresta_min].vertice_i in minimum.vertices) and (g.arestas[pos_aresta_min].vertice_f not in minimum.vertices) or\
           (g.arestas[pos_aresta_min].vertice_f in minimum.vertices) and (g.arestas[pos_aresta_min].vertice_i not in minimum.vertices):
             minimum.add_aresta(g.arestas[pos_aresta_min])
-            original.remove_aresta(g.arestas[pos_aresta_min])
-            g = copy.deepcopy(original)
+            auxiliar.remove_aresta(g.arestas[pos_aresta_min])
+            g = copy.deepcopy(auxiliar)
         else:
             g.remove_aresta(g.arestas[pos_aresta_min])
+    g = copy.deepcopy(original)
+    return minimum
+
+def alg_Kruskal(g):
+    grafo_original = copy.deepcopy(g)
+    grafo_ordenado = Grafo([],[])
+    minimum = Grafo([],[])
+    while(len(grafo_ordenado.arestas) < len(grafo_original.arestas)):
+        peso_min = inf
+        pos_aresta_min = 0
+        for i in range(len(g.arestas)):
+            if (g.arestas[i].peso <= peso_min):
+                peso_min = g.arestas[i].peso
+                pos_aresta_min = i
+        grafo_ordenado.add_aresta(g.arestas[pos_aresta_min])
+        g.remove_aresta(g.arestas[pos_aresta_min])
+    minimum.add_aresta(grafo_ordenado.arestas[0])
+    for j in range(len(grafo_ordenado.arestas)):
+        if (grafo_ordenado.arestas[j].vertice_i in minimum.vertices) and (grafo_ordenado.arestas[j].vertice_f not in minimum.vertices) or \
+            (grafo_ordenado.arestas[j].vertice_f in minimum.vertices) and (grafo_ordenado.arestas[j].vertice_i not in minimum.vertices):
+            minimum.add_aresta(grafo_ordenado.arestas[j])
+    g = copy.deepcopy(grafo_original)
     return minimum
 
 A = Vertice('A')
@@ -145,17 +168,21 @@ a15 = Aresta('a15', J, I, 1)
 a16 = Aresta('a16', H, G, 4)
 a17 = Aresta('a17', C, D, 6)
 a18 = Aresta('a18', A, C, 2)
-a19 = Aresta('a18', A, H, 1)
+a19 = Aresta('a19', A, H, 1)
 
 print("Teste 1")
 g = Grafo([],[a0,a1,a2,a3,a4,a5,a6,a7,a8])
-print(g)
+print("grafo 1",g)
 g_prim = alg_Prim(g)
-print(g_prim)
+print("grafo 1 - prim",g_prim)
+g_kruskal = alg_Kruskal(g)
+print("grafo 1 - kruskal",g_kruskal)
 
 print("Teste 2")
 g2 = Grafo([],[a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19])
-print(g2)
+print("grafo 2",g2)
 g2_prim = alg_Prim(g2)
-print(g2_prim)
+print("grafo 2 - prim",g2_prim)
+g2_kruskal = alg_Kruskal(g2)
+print("grafo 2 - kruskal",g2_kruskal)
 
