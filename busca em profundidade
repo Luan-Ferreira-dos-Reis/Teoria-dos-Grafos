@@ -1,0 +1,437 @@
+from math import inf
+import copy
+
+# Aluno: Luan Ferreira dos Reis - Roteiro 7
+
+# classe vértice : tem um (id) para identificação
+class Vertice:
+    def __init__(self, id):
+        self.id = id
+        self.conexoes = []   ###todas as arestas conectadas ao vertice
+        self.vizinhos = []   ###todos os vertices conectados
+        self.filhos = []     ### todos os vertices filhos (só faz sentido para grafo direcionado)
+        self.pais = []
+    def __str__(self):
+        return self.id
+    def add_aresta(self, aresta):
+        self.conexoes.append(aresta)
+        if aresta.vertice_i.id != self.id:
+            self.vizinhos.append(aresta.vertice_i)
+            self.pais.append(aresta.vertice_i)
+        else:
+            self.vizinhos.append(aresta.vertice_f)
+            self.filhos.append(aresta.vertice_f)
+    def __eq__(self, other):
+        return self.id == other.id
+
+
+# Classe Aresta : tem um(id) , dois vertices que esta conecta, peso(defaut 1) e direção(default Falso)
+class Aresta:
+    def __init__(self, id, vertice_i, vertice_f, peso = 1 ,direcionada = False):
+        self.id = id
+        self.peso = peso
+        self.vertice_i = vertice_i
+        self.vertice_f = vertice_f
+        if self.vertice_i == self.vertice_f:
+            self.peso = 0
+        self.direcionada = direcionada
+    def __str__(self):
+        s = str(self.id)+": " + str(self.vertice_i)+ ' --[' + str(self.peso) + ']-- '+ str(self.vertice_f)
+        if self.direcionada:
+            s = str(self.id)+": " + str(self.vertice_i) + ' --[' + str(self.peso) + ']-> ' + str(self.vertice_f)
+        return(s)
+    def __eq__(self, other):
+        if self.incide(other.vertice_i) and self.incide(other.vertice_f):
+            return True
+        else:
+            return False
+    def incide(self, vertice):
+        if (vertice == self.vertice_i or vertice == self.vertice_f):
+            return True
+        else:
+            return False
+    def aresta_liga(self, vertice1, vertice2):
+        if self.incide(vertice1) and self.incide(vertice2):
+            return True
+        return False
+
+
+# Classe Grafo : recebe vertices isolados, ou arestas com seus respectivos vértices
+class Grafo:
+    def __init__(self, vertices=[], arestas=[]):
+        self.vertices = vertices
+        self.arestas = arestas
+        for i in self.arestas:
+            if i.vertice_i not in self.vertices:
+                self.vertices.append(i.vertice_i)
+            if i.vertice_f not in self.vertices:
+                self.vertices.append(i.vertice_f)
+            i.vertice_i.add_aresta(i)
+            i.vertice_f.add_aresta(i)
+    def add_aresta(self, aresta):
+        if(aresta not in self.arestas):
+            self.arestas.append(aresta)
+            aresta.vertice_i.add_aresta(aresta)
+            if aresta.vertice_i not in self.vertices:
+                self.vertices.append(aresta.vertice_i)
+            aresta.vertice_f.add_aresta(aresta)
+            if aresta.vertice_f not in self.vertices:
+                self.vertices.append(aresta.vertice_f)
+    def remove_aresta(self, aresta):
+        if (aresta in self.arestas):
+            self.arestas.remove(aresta)
+    def add_vertice(self, vertice):
+        if(vertice not in self.vertices):
+            self.vertices.append(vertice)
+    def remove_vertice(self, vertice):
+        remover=[]
+        if (vertice in self.vertices):
+            for i in self.arestas:
+                if(i.vertice_i == vertice or i.vertice_f == vertice):
+                    remover.append(i)
+            for r in remover:
+                self.remove_aresta(r)
+            self.vertices.remove(vertice)
+    def procura_vertice(self, vertice):
+        if vertice in self.vertices:
+            return True
+        else:
+            return False
+    def procura_aresta(self, aresta):
+        if aresta in self.arestas:
+            return True
+        else:
+            return False
+    def __str__(self):
+        mapa = "aresta: vertice_inicial -- [Peso] -- vertice_final (direcionado: sim = '->', nao = '--) \n"
+        for i in range(len(self.arestas)):
+            mapa = mapa + str(self.arestas[i]) +"\n"
+        return mapa
+    def __eq__(self, other):
+        for a in self.arestas:
+            if a not in other.arestas:
+                return False
+        for a in other.arestas:
+            if a not in self.arestas:
+                return False
+        return True
+
+    def dfs(self, r, arvore, retorno, vertices, pais):   #(self, vertice raiz, arvoreDFS, arestas de RETORNO, verticesEXAMINADOS, pais DOS VERTICES)
+        if(len(vertices) == len(self.vertices)):
+            return [arvore,retorno]
+        for v in r.vizinhos:
+            aresta = Aresta(r.id + "-" + v.id, r, v, 1, True)
+            for busca in self.arestas:
+                if(busca == aresta):
+                    aresta = busca
+                    aresta.direcionada = True
+                    break
+            if((aresta not in arvore) and (aresta not in retorno)):
+                if (v not in vertices):
+                    arvore.append(aresta)
+                    vertices.append(v)
+                    pais.append(r)
+                    self.dfs(v,arvore, retorno, vertices, pais)
+                else:
+                    retorno.append(aresta)
+        return self.dfs(pais[vertices.index(r)], arvore, retorno, vertices, pais)
+
+    def dfs_digrafo(self, r, arvore, retorno, avanco, cruzada ,vertices, pais, exam):   #(self, vertice raiz, arvoreDFS, arestas de RETORNO, arestas de AVANCO, arestas CRUZADA, verticesEXAMINADOS, pais DOS VERTICES, vertice COMPLETAMENTE EXAMINADOS)
+        if(len(vertices) == len(self.vertices)):
+            for a in self.arestas:
+                if ((a not in arvore) and (a not in retorno) and (a not in avanco) and (a not in cruzada)):
+                    aresta = Aresta(a.vertice_i.id + "-" + a.vertice_f.id, a.vertice_i, a.vertice_f, 1, True)
+                    for busca in self.arestas:
+                        if (busca == aresta):
+                            aresta = busca
+                            aresta.direcionada = True
+                            break
+                    cruzada.append(aresta)
+            return [arvore,retorno,cruzada,avanco]
+        for v in r.filhos:
+            aresta = Aresta(r.id + "-" + v.id, r, v, 1, True)
+            for busca in self.arestas:
+                if(busca == aresta):
+                    aresta = busca
+                    aresta.direcionada = True
+                    break
+            if((aresta not in arvore) and (aresta not in retorno) and (aresta not in avanco)):
+                if (v not in vertices):
+                    arvore.append(aresta)
+                    vertices.append(v)
+                    pais.append(r)
+                    return self.dfs_digrafo(v,arvore, retorno,avanco, cruzada , vertices, pais, exam)
+                else:
+                    if(vertices.index(v)>vertices.index(r)):
+                        avanco.append(aresta)
+                    if(vertices.index(r)>vertices.index(v)):
+                        if(v in exam):
+                            cruzada.append(aresta)
+                        else:
+                            retorno.append(aresta)
+        exam.append(r)
+        if(pais[vertices.index(r)]!=r):
+            return self.dfs_digrafo(pais[vertices.index(r)], arvore, retorno, avanco, cruzada, vertices, pais, exam)
+        else:
+            for nova_raiz in self.vertices:
+                if(nova_raiz not in vertices) and (len(nova_raiz.filhos)>0):
+                    pais.append(nova_raiz)
+                    vertices.append(nova_raiz)
+                    return self.dfs_digrafo(nova_raiz, arvore, retorno, avanco, cruzada, vertices, pais, exam)
+
+
+A = Vertice('A')
+B = Vertice('B')
+C = Vertice('C')
+D = Vertice('D')
+E = Vertice('E')
+F = Vertice('F')
+G = Vertice('G')
+H = Vertice('H')
+I = Vertice('I')
+J = Vertice('J')
+K = Vertice('K')
+
+a0 = Aresta('A-B', A, B)
+a1 = Aresta('A-C', A, C)
+a2 = Aresta('A-D', A, D)
+a3 = Aresta('B-K', B, K)
+a4 = Aresta('B-J', B, J)
+a5 = Aresta('B-I', B, I)
+a6 = Aresta('B-H', B, H)
+a7 = Aresta('B-C', B, C)
+a8 = Aresta('C-D', C, D)
+a9 = Aresta('C-E', C, E)
+a10 = Aresta('C-F', C, F)
+a11 = Aresta('C-G', C, G)
+a12 = Aresta('D-E', D, E)
+a13 = Aresta('D-F', D, F)
+a14 = Aresta('G-H', G, H)
+a15 = Aresta('I-K', I, K)
+a16 = Aresta('I-J', I, J)
+
+# g = Grafo([],[a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16])
+# print(g)
+#
+# arvore_retorno= g.dfs(A,[],[],[A],[None])
+#
+# print("árvore dfs")
+# for i in arvore_retorno[0]:
+#     print(i)
+#
+# print("arestas de retorno")
+# for i in arvore_retorno[1]:
+#     print(i)
+#
+#
+# a_teste=[a0,a3,a15,a16,a6,a14,a11,a8,a12,a13]
+# r_teste=[a5,a4,a1,a7,a2,a9,a10]
+# teste=[a_teste,r_teste]
+# print(arvore_retorno==teste)
+
+L = Vertice('L')
+M = Vertice('M')
+N = Vertice('N')
+O = Vertice('O')
+P = Vertice('P')
+Q = Vertice('Q')
+
+a17 = Aresta('L-M',L,M)
+a18 = Aresta('M-P',M,P)
+a19 = Aresta('P-Q',P,Q)
+a20 = Aresta('Q-N', Q,N)
+a21 = Aresta('L-N',L,N)
+a22 = Aresta('N-O', N, O)
+
+# g2 = Grafo([],[a17,a18,a19,a20,a21,a22])
+# print(g2)
+#
+# arvore_retorno2= g2.dfs(L,[],[],[L],[None])
+#
+# print("árvore dfs")
+# for i in arvore_retorno2[0]:
+#     print(i)
+#
+# print("arestas de retorno")
+# for i in arvore_retorno2[1]:
+#     print(i)
+#
+# a_teste2=[a17,a18,a19,a20,a22]
+# r_teste2=[a21]
+# teste2=[a_teste2,r_teste2]
+# print(arvore_retorno2==teste2)
+
+
+R = Vertice('R')
+S = Vertice('S')
+T = Vertice('T')
+U = Vertice('U')
+V = Vertice('V')
+
+a23 = Aresta('R-S',R,S)
+a24 = Aresta('S-T',S,T)
+a25 = Aresta('T-U',T,U)
+a26 = Aresta('S-V',S,V)
+
+# g3 = Grafo([],[a23,a24,a25,a26])
+# print(g3)
+#
+# arvore_retorno3= g3.dfs(R,[],[],[R],[None])
+#
+# print("árvore dfs")
+# for i in arvore_retorno3[0]:
+#     print(i)
+#
+# print("arestas de retorno")
+# for i in arvore_retorno3[1]:
+#     print(i)
+#
+# a_teste3=[a23,a24,a25,a26]
+# r_teste3=[]
+# teste3=[a_teste3,r_teste3]
+# print(arvore_retorno3==teste3)
+
+W = Vertice('W')
+X = Vertice('X')
+Y = Vertice('Y')
+Z = Vertice('Z')
+
+a27 = Aresta('a27',X,Y)
+a28 = Aresta('a28',Y,Z)
+a29 = Aresta('a29', Z,X)
+a30 = Aresta('a30', Z,W)
+
+# g4 = Grafo([],[a27,a28,a29,a30])
+# print(g4)
+#
+# arvore_retorno4= g4.dfs(X,[],[],[X],[None])
+#
+# print("árvore dfs")
+# for i in arvore_retorno4[0]:
+#     print(i)
+#
+# print("arestas de retorno")
+# for i in arvore_retorno4[1]:
+#     print(i)
+#
+# a_teste4=[a27,a28,a30]
+# r_teste4=[a29]
+# teste4=[a_teste4,r_teste4]
+# print(arvore_retorno4==teste4)
+
+v1 = Vertice("v1")
+v2 = Vertice("v2")
+v3 = Vertice("v3")
+v4 = Vertice("v4")
+v5 = Vertice("v5")
+v6 = Vertice("v6")
+v7 = Vertice("v7")
+v8 = Vertice("v8")
+v9 = Vertice("v9")
+v10 = Vertice("v10")
+v11 = Vertice("v11")
+v12 = Vertice("v12")
+v13 = Vertice("v13")
+
+b1 = Aresta('b1',v1,v2,1,True)
+b2 = Aresta('b2',v1,v4,1,True)
+b3 = Aresta('b3',v1,v7,1,True)
+b4 = Aresta('b4',v2,v3,1,True)
+b5 = Aresta('b5',v2,v6,1,True)
+b6 = Aresta('b6',v3,v4,1,True)
+b7 = Aresta('b7',v3,v5,1,True)
+b8 = Aresta('b8',v5,v2,1,True)
+b9 = Aresta('b9',v6,v7,1,True)
+b10 = Aresta('b10',v6,v4,1,True)
+b11 = Aresta('b11',v8,v9,1,True)
+b12 = Aresta('b12',v9,v10,1,True)
+b13 = Aresta('b13',v9,v12,1,True)
+b14 = Aresta('b14',v10,v11,1,True)
+b15 = Aresta('b15',v10,v12,1,True)
+b16 = Aresta('b16',v11,v9,1,True)
+b17 = Aresta('b17',v11,v6,1,True)
+b18 = Aresta('b18',v13,v8,1,True)
+b19 = Aresta('b19',v13,v9,1,True)
+b20 = Aresta('b20',v13,v12,1,True)
+
+
+
+digrafo = Grafo([],[b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20])
+print(digrafo)
+
+print()
+arvore_retorno_avanco_cruzada = digrafo.dfs_digrafo(v1,[],[],[],[],[v1],[v1],[])
+
+print("arvore")
+for i in arvore_retorno_avanco_cruzada[0]:
+    print(i)
+print()
+print("retorno")
+for i in arvore_retorno_avanco_cruzada[1]:
+    print(i)
+print()
+print("cruzada")
+for i in arvore_retorno_avanco_cruzada[2]:
+    print(i)
+print()
+print("avanco")
+for i in arvore_retorno_avanco_cruzada[3]:
+    print(i)
+print()
+
+di_teste_arvore=[b1,b4,b6,b7,b5,b9,b11,b12,b14,b15]
+di_teste_retorno=[b8,b16]
+di_teste_avanco=[b2,b3,b13]
+di_teste_cruzada=[b10,b17,b18,b19,b20]
+di_teste=[di_teste_arvore,di_teste_retorno,di_teste_cruzada,di_teste_avanco]
+# di_teste=[di_teste_arvore,di_teste_retorno,di_teste_cruzada]
+print(digrafo.dfs_digrafo(v1,[],[],[],[],[v1],[v1],[])==di_teste)
+
+ve1 = Vertice("ve1")
+ve2 = Vertice("ve2")
+ve3 = Vertice("ve3")
+ve4 = Vertice("ve4")
+ve5 = Vertice("ve5")
+ve6 = Vertice("ve6")
+
+ar1 = Aresta('1-2',ve1,ve2,1,True)
+ar2 = Aresta('1-5',ve1,ve5,1,True)
+ar3 = Aresta('2-3',ve2,ve3,1,True)
+ar4 = Aresta('2-5',ve2,ve5,1,True)
+ar5 = Aresta('3-6',ve3,ve6,1,True)
+ar6 = Aresta('4-1',ve4,ve1,1,True)
+ar7 = Aresta('4-5',ve4,ve5,1,True)
+ar8 = Aresta('5-6',ve5,ve6,1,True)
+ar9 = Aresta('6-2',ve6,ve2,1,True)
+
+# digrafowiki = Grafo([],[ar1,ar2,ar3,ar4,ar5,ar6,ar7,ar8,ar9])
+# print(digrafowiki)
+# arvore_retorno_avanco_cruzada = digrafowiki.dfs_digrafo(ve1,[],[],[],[],[ve1],[ve1],[])
+#
+# # arvore_retorno_avanco_cruzada = digrafo.dfs_digrafo(v1,[],[],[],[],[v1],[v1],[])
+# #
+# print("arvore")
+# for i in arvore_retorno_avanco_cruzada[0]:
+#     print(i)
+# print()
+# print("retorno")
+# for i in arvore_retorno_avanco_cruzada[1]:
+#     print(i)
+# print()
+# print("cruzada")
+# for i in arvore_retorno_avanco_cruzada[2]:
+#     print(i)
+# print()
+# # # print("avanco")
+# # # for i in arvore_retorno_avanco_cruzada[3]:
+# # #     print(i)
+# # # print()
+#
+# di_teste_arvore=[ar1,ar3,ar5,ar4]
+# di_teste_retorno=[ar9]
+# # di_teste_avanco=[b2,b3,b13]
+# di_teste_cruzada=[ar8,ar6,ar7]
+# # # di_teste=[di_teste_arvore,di_teste_retorno,di_teste_avanco,di_teste_cruzada]
+# di_teste=[di_teste_arvore,di_teste_retorno,di_teste_cruzada]
+# #[[ar1,ar3,ar5,ar4],[ar9],[ar8,ar6,ar7]]
+# print
