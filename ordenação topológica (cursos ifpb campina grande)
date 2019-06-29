@@ -1,0 +1,807 @@
+from math import inf
+import copy
+
+# Aluno: Luan Ferreira dos Reis - Roteiro 8
+
+# classe vértice : tem um (id) para identificação
+class Vertice:
+    def __init__(self, id):
+        self.id = id
+        self.conexoes = []   ###todas as arestas conectadas ao vertice
+        self.vizinhos = []   ###todos os vertices conectados
+        self.filhos = []     ### todos os vertices filhos (só faz sentido para grafo direcionado)
+        self.pais = []
+    def __str__(self):
+        return self.id
+    def add_aresta(self, aresta):
+        self.conexoes.append(aresta)
+        if aresta.vertice_i.id != self.id:
+            self.vizinhos.append(aresta.vertice_i)
+            self.pais.append(aresta.vertice_i)
+        else:
+            self.vizinhos.append(aresta.vertice_f)
+            self.filhos.append(aresta.vertice_f)
+    def __eq__(self, other):
+        return self.id == other.id
+
+
+# Classe Aresta : tem um(id) , dois vertices que esta conecta, peso(defaut 1) e direção(default Falso)
+class Aresta:
+    def __init__(self, id, vertice_i, vertice_f, peso = 1 ,direcionada = False):
+        self.id = id
+        self.peso = peso
+        self.vertice_i = vertice_i
+        self.vertice_f = vertice_f
+        if self.vertice_i == self.vertice_f:
+            self.peso = 0
+        self.direcionada = direcionada
+    def __str__(self):
+        s = str(self.id)+": " + str(self.vertice_i)+ ' --[' + str(self.peso) + ']-- '+ str(self.vertice_f)
+        if self.direcionada:
+            s = str(self.id)+": " + str(self.vertice_i) + ' --[' + str(self.peso) + ']-> ' + str(self.vertice_f)
+        return(s)
+    def __eq__(self, other):
+        return self.id == other.id
+    def incide(self, vertice):
+        if (vertice == self.vertice_i or vertice == self.vertice_f):
+            return True
+        else:
+            return False
+
+# Classe Grafo : recebe vertices isolados, ou arestas com seus respectivos vértices
+class Grafo:
+    def __init__(self, vertices=[], arestas=[]):
+        self.vertices = vertices
+        self.arestas = arestas
+        for i in self.arestas:
+            if i.vertice_i not in self.vertices:
+                self.vertices.append(i.vertice_i)
+            if i.vertice_f not in self.vertices:
+                self.vertices.append(i.vertice_f)
+            i.vertice_i.add_aresta(i)
+            i.vertice_f.add_aresta(i)
+    def add_aresta(self, aresta):
+        if(aresta not in self.arestas):
+            self.arestas.append(aresta)
+            aresta.vertice_i.add_aresta(aresta)
+            if aresta.vertice_i not in self.vertices:
+                self.vertices.append(aresta.vertice_i)
+            aresta.vertice_f.add_aresta(aresta)
+            if aresta.vertice_f not in self.vertices:
+                self.vertices.append(aresta.vertice_f)
+    def remove_aresta(self, aresta):
+        if (aresta in self.arestas):
+            self.arestas.remove(aresta)
+    def add_vertice(self, vertice):
+        if(vertice not in self.vertices):
+            self.vertices.append(vertice)
+    def remove_vertice(self, vertice):
+        remover=[]
+        if (vertice in self.vertices):
+            for i in self.arestas:
+                if(i.vertice_i == vertice or i.vertice_f == vertice):
+                    remover.append(i)
+            for r in remover:
+                self.remove_aresta(r)
+            self.vertices.remove(vertice)
+    def procura_vertice(self, vertice):
+        if vertice in self.vertices:
+            return True
+        else:
+            return False
+    def procura_aresta(self, aresta):
+        if aresta in self.arestas:
+            return True
+        else:
+            return False
+    def __str__(self):
+        mapa = "aresta: vertice_inicial -- [Peso] -- vertice_final (direcionado: sim = '->', nao = '--) \n"
+        for i in range(len(self.arestas)):
+            mapa = mapa + str(self.arestas[i]) +"\n"
+        return mapa
+    def __eq__(self, other):
+        for a in self.arestas:
+            if a not in other.arestas:
+                return False
+        for a in other.arestas:
+            if a not in self.arestas:
+                return False
+        return True
+
+    def khan(self):                       #algoritmo de khan para ordenação topológica
+        grafo = copy.deepcopy(self)
+        num_vertices = len(self.vertices)
+        lista=[]
+        while(len(lista)<num_vertices):
+            for v in grafo.vertices:
+                excluir = True
+                for a in grafo.arestas:
+                    if a.vertice_f == v:
+                        excluir = False
+                        break
+                if excluir == True:
+                    lista.append(v)
+                    grafo.remove_vertice(v)
+        return lista
+
+
+    def dfs(self, ord_top, v):                    #algoritmo dfs para ordenação topológica , é preciso passar uma lista vazia e um vértice FONTE para começa ordenação
+        for a in v.filhos:
+            self.dfs(ord_top, a)
+        if (v not in ord_top):
+            ord_top.append(v)
+            if (len(ord_top) == len(self.vertices)):
+                ord_top.reverse()
+                return ord_top
+            if (len(v.pais) == 0):
+                for novo in self.vertices:
+                    if (novo != v) and len(novo.pais) == 0 and (novo not in ord_top):
+                        return self.dfs(ord_top, novo)
+
+
+# Engenharia de Computação
+
+d11 = Vertice("d11")
+d12 = Vertice("d12")
+d13 = Vertice("d13")
+d14 = Vertice("d14")
+d15 = Vertice("d15")
+d16 = Vertice("d16")
+d17 = Vertice("d17")
+
+d21 = Vertice("d21")
+d22 = Vertice("d22")
+d23 = Vertice("d23")
+d24 = Vertice("d24")
+d25 = Vertice("d25")
+d26 = Vertice("d26")
+d27 = Vertice("d27")
+
+d31 = Vertice("d31")
+d32 = Vertice("d32")
+d33 = Vertice("d33")
+d34 = Vertice("d34")
+d35 = Vertice("d35")
+d36 = Vertice("d36")
+
+d41 = Vertice("d41")
+d42 = Vertice("d42")
+d43 = Vertice("d43")
+d44 = Vertice("d44")
+d45 = Vertice("d45")
+
+d51 = Vertice("d51")
+d52 = Vertice("d52")
+d53 = Vertice("d53")
+d54 = Vertice("d54")
+d55 = Vertice("d55")
+
+d61 = Vertice("d61")
+d62 = Vertice("d62")
+d63 = Vertice("d63")
+d64 = Vertice("d64")
+d65 = Vertice("d65")
+
+d71 = Vertice("d71")
+d72 = Vertice("d72")
+d73 = Vertice("d73")
+d74 = Vertice("d74")
+d75 = Vertice("d75")
+
+d81 = Vertice("d81")
+d82 = Vertice("d82")
+d83 = Vertice("d83")
+d84 = Vertice("d84")
+d85 = Vertice("d85")
+
+d91 = Vertice("d91")
+d92 = Vertice("d92")
+d93 = Vertice("d93")
+d94 = Vertice("d94")
+
+d101 = Vertice("d101")
+d102 = Vertice("d102")
+d103 = Vertice("d103")
+
+
+a1= Aresta("a1",d11,d21,1,True)
+a2= Aresta("a2",d14,d22,1,True)
+a3= Aresta("a3",d15,d22,1,True)
+a4= Aresta("a4",d16,d26,1,True)
+a5= Aresta("a5",d14,d25,1,True)
+a6= Aresta("a5",d15,d25,1,True)
+
+a7= Aresta("a7",d21,d31,1,True)
+a8= Aresta("a8",d24,d33,1,True)
+a9= Aresta("a9",d25,d33,1,True)
+a10= Aresta("a10",d14,d34,1,True)
+a11= Aresta("a11",d15,d34,1,True)
+a12= Aresta("a12",d14,d35,1,True)
+a13= Aresta("a13",d15,d35,1,True)
+a14= Aresta("a14",d26,d36,1,True)
+
+a15= Aresta("a15",d22,d42,1,True)
+a16= Aresta("a16",d21,d41,1,True)
+a17= Aresta("a17",d24,d43,1,True)
+a18= Aresta("a18",d26,d44,1,True)
+a19= Aresta("a19",d26,d45,1,True)
+
+a20= Aresta("a20",d31,d51,1,True)
+a21= Aresta("a21",d24,d53,1,True)
+a22= Aresta("a22",d24,d54,1,True)
+a23= Aresta("a23",d36,d55,1,True)
+a24= Aresta("a24",d44,d55,1,True)
+
+a25= Aresta("a25",d51,d61,1,True)
+a26= Aresta("a26",d43,d62,1,True)
+a27= Aresta("a27",d34,d63,1,True)
+a28= Aresta("a28",d35,d63,1,True)
+a29= Aresta("a29",d31,d64,1,True)
+a30= Aresta("a30",d55,d65,1,True)
+
+a31= Aresta("a31",d24,d72,1,True)
+a32= Aresta("a32",d63,d73,1,True)
+a33= Aresta("a33",d52,d75,1,True)
+a34= Aresta("a34",d64,d75,1,True)
+
+a35= Aresta("a35",d34,d81,1,True)
+a36= Aresta("a36",d35,d81,1,True)
+a37= Aresta("a37",d54,d81,1,True)
+a38= Aresta("a38",d73,d82,1,True)
+a39= Aresta("a39",d74,d83,1,True)
+a40= Aresta("a40",d61,d84,1,True)
+a41= Aresta("a41",d64,d84,1,True)
+a42= Aresta("a42",d75,d85,1,True)
+
+a43= Aresta("a43",d83,d92,1,True)
+a44= Aresta("a44",d44,d93,1,True)
+a45= Aresta("a45",d45,d93,1,True)
+a46= Aresta("a46",d61,d94,1,True)
+a47= Aresta("a47",d75,d94,1,True)
+
+a48= Aresta("a48",d92,d103,1,True)
+
+
+
+#Letras
+
+l11 = Vertice("l11")
+l12 = Vertice("l12")
+l13 = Vertice("l13")
+l14 = Vertice("l14")
+l15 = Vertice("l15")
+l16 = Vertice("l16")
+l17 = Vertice("l17")
+
+l21 = Vertice("l21")
+l22 = Vertice("l22")
+l23 = Vertice("l23")
+l24 = Vertice("l24")
+l25 = Vertice("l25")
+l26 = Vertice("l26")
+l27 = Vertice("l27")
+
+l31 = Vertice("l31")
+l32 = Vertice("l32")
+l33 = Vertice("l33")
+l34 = Vertice("d34")
+l35 = Vertice("l35")
+l36 = Vertice("l36")
+l37 = Vertice("l37")
+
+l41 = Vertice("l41")
+l42 = Vertice("l42")
+l43 = Vertice("l43")
+l44 = Vertice("l44")
+l45 = Vertice("l45")
+l46 = Vertice("l46")
+l47 = Vertice("l47")
+
+l51 = Vertice("l51")
+l52 = Vertice("l52")
+l53 = Vertice("l53")
+l54 = Vertice("l54")
+l55 = Vertice("l55")
+l56 = Vertice("l56")
+l57 = Vertice("l57")
+
+l61 = Vertice("l61")
+l62 = Vertice("l62")
+l63 = Vertice("l63")
+l64 = Vertice("l64")
+l65 = Vertice("l65")
+l66 = Vertice("l66")
+l67 = Vertice("l67")
+l68 = Vertice("l68")
+
+l71 = Vertice("l71")
+l72 = Vertice("l72")
+l73 = Vertice("l73")
+l74 = Vertice("l74")
+l75 = Vertice("l75")
+l76 = Vertice("l76")
+l77 = Vertice("l77")
+l78 = Vertice("l78")
+
+l81 = Vertice("l81")
+l82 = Vertice("l82")
+l83 = Vertice("l83")
+l84 = Vertice("l84")
+l85 = Vertice("l85")
+l86 = Vertice("l86")
+l87 = Vertice("l87")
+l88 = Vertice("l88")
+
+b1 = Aresta("b1",l11,l21,1,True)
+b2 = Aresta("b2",l11,l22,1,True)
+b3 = Aresta("b3",l12,l23,1,True)
+b4 = Aresta("b4",l12,l25,1,True)
+b5 = Aresta("b5",l17,l26,1,True)
+
+b6 = Aresta("b6",l21,l31,1,True)
+b7 = Aresta("b7",l21,l32,1,True)
+b8 = Aresta("b8",l24,l34,1,True)
+b9 = Aresta("b9",l25,l35,1,True)
+b10 = Aresta("b10",l21,l33,1,True)
+
+b11 = Aresta("b11",l31,l43,1,True)
+b12 = Aresta("b12",l33,l42,1,True)
+b13 = Aresta("b13",l25,l43,1,True)
+b14 = Aresta("b14",l25,l44,1,True)
+b15 = Aresta("b15",l36,l44,1,True)
+b16 = Aresta("b16",l23,l46,1,True)
+b17 = Aresta("b17",l35,l46,1,True)
+b18 = Aresta("b18",l37,l47,1,True)
+
+b19 = Aresta("b19",l31,l51,1,True)
+b20 = Aresta("b20",l32,l52,1,True)
+b21 = Aresta("b21",l13,l53,1,True)
+b22 = Aresta("b22",l45,l54,1,True)
+b23 = Aresta("b23",l35,l55,1,True)
+b24 = Aresta("b24",l22,l56,1,True)
+b25 = Aresta("b25",l37,l57,1,True)
+
+b26 = Aresta("b26",l31,l61,1,True)
+b27 = Aresta("b27",l31,l62,1,True)
+b28 = Aresta("b28",l35,l63,1,True)
+b29 = Aresta("b29",l54,l64,1,True)
+b30 = Aresta("b30",l37,l67,1,True)
+b31 = Aresta("b31",l54,l68,1,True)
+
+b32 = Aresta("b32",l31,l72,1,True)
+b33 = Aresta("b33",l31,l71,1,True)
+b34 = Aresta("b34",l31,l73,1,True)
+b35 = Aresta("b35",l64,l74,1,True)
+b36 = Aresta("b36",l35,l75,1,True)
+b37 = Aresta("b37",l45,l76,1,True)
+b38 = Aresta("b38",l27,l77,1,True)
+b39 = Aresta("b39",l53,l77,1,True)
+b40 = Aresta("b40",l64,l78,1,True)
+b41 = Aresta("b41",l68,l78,1,True)
+
+b42 = Aresta("b42",l17,l83,1,True)
+b43 = Aresta("b43",l74,l84,1,True)
+b44 = Aresta("b44",l77,l87,1,True)
+b45 = Aresta("b45",l74,l88,1,True)
+b46 = Aresta("b46",l74,l88,1,True)
+
+
+#Fisica
+
+f11 = Vertice("f11")
+f12 = Vertice("f12")
+f13 = Vertice("f13")
+f14 = Vertice("f14")
+f15 = Vertice("f15")
+f16 = Vertice("f16")
+f17 = Vertice("f17")
+
+f21 = Vertice("f21")
+f22 = Vertice("f22")
+f23 = Vertice("f23")
+f24 = Vertice("f24")
+f25 = Vertice("f25")
+f26 = Vertice("f26")
+f27 = Vertice("f27")
+
+f31 = Vertice("f31")
+f32 = Vertice("f32")
+f33 = Vertice("f33")
+f34 = Vertice("f34")
+f35 = Vertice("f35")
+f36 = Vertice("f36")
+f37 = Vertice("f37")
+
+f41 = Vertice("f41")
+f42 = Vertice("f42")
+f43 = Vertice("f43")
+f44 = Vertice("f44")
+f45 = Vertice("f45")
+f46 = Vertice("f46")
+
+f51 = Vertice("f51")
+f52 = Vertice("f52")
+f53 = Vertice("f53")
+f54 = Vertice("f54")
+f55 = Vertice("f55")
+f56 = Vertice("f56")
+
+f61 = Vertice("f61")
+f62 = Vertice("f62")
+f63 = Vertice("f63")
+f64 = Vertice("f64")
+f65 = Vertice("f65")
+f66 = Vertice("f66")
+
+f71 = Vertice("f71")
+f72 = Vertice("f72")
+f73 = Vertice("f73")
+f74 = Vertice("f74")
+
+
+f81 = Vertice("f81")
+f82 = Vertice("f82")
+f83 = Vertice("f83")
+f84 = Vertice("f84")
+f85 = Vertice("f85")
+
+c1 = Aresta("c1",f11,f21,1,True)
+c2 = Aresta("c2",f12,f21,1,True)
+c3 = Aresta("c3",f11,f22,1,True)
+c4 = Aresta("c4",f12,f22,1,True)
+c5 = Aresta("c5",f12,f23,1,True)
+c6 = Aresta("c6",f12,f24,1,True)
+c7 = Aresta("c7",f14,f24,1,True)
+c8 = Aresta("c8",f15,f25,1,True)
+
+c9 = Aresta("c9",f21,f31,1,True)
+c10 = Aresta("c10",f23,f31,1,True)
+c11 = Aresta("c11",f21,f32,1,True)
+c12 = Aresta("c12",f22,f32,1,True)
+c13 = Aresta("c13",f23,f33,1,True)
+
+c14 = Aresta("c14",f31,f41,1,True)
+c15 = Aresta("c15",f31,f42,1,True)
+c16 = Aresta("c16",f32,f42,1,True)
+c17 = Aresta("c17",f33,f45,1,True)
+c18 = Aresta("c18",f31,f46,1,True)
+
+c19 = Aresta("c19",f41,f51,1,True)
+c20 = Aresta("c20",f45,f51,1,True)
+c21 = Aresta("c21",f41,f52,1,True)
+c22 = Aresta("c22",f42,f52,1,True)
+c23 = Aresta("c23",f45,f53,1,True)
+c24 = Aresta("c24",f31,f54,1,True)
+c25 = Aresta("c25",f43,f55,1,True)
+
+c26 = Aresta("c26",f51,f61,1,True)
+c27 = Aresta("c27",f51,f61,1,True)
+c28 = Aresta("c28",f52,f62,1,True)
+c29 = Aresta("c29",f21,f63,1,True)
+c30 = Aresta("c30",f53,f63,1,True)
+c31 = Aresta("c31",f51,f64,1,True)
+c32 = Aresta("c32",f56,f66,1,True)
+
+c33 = Aresta("c33",f61,f71,1,True)
+c34 = Aresta("c34",f41,f72,1,True)
+c35 = Aresta("c35",f45,f72,1,True)
+c36 = Aresta("c36",f66,f73,1,True)
+c37= Aresta("c37",f31,f74,1,True)
+c38 = Aresta("c38",f43,f74,1,True)
+
+c39 = Aresta("c39",f65,f81,1,True)
+c40 = Aresta("c40",f74,f82,1,True)
+c41 = Aresta("c41",f73,f83,1,True)
+c42 = Aresta("c42",f54,f84,1,True)
+c43= Aresta("c43",f71,f84,1,True)
+c44 = Aresta("c44",f16,f85,1,True)
+c45 = Aresta("c44",f25,f85,1,True)
+
+
+#Matematica
+
+m11 = Vertice("m11")
+m12 = Vertice("m12")
+m13 = Vertice("m13")
+m14 = Vertice("m14")
+m15 = Vertice("m15")
+m16 = Vertice("m16")
+m17 = Vertice("m17")
+
+m21 = Vertice("m21")
+m22 = Vertice("m22")
+m23 = Vertice("m23")
+m24 = Vertice("m24")
+m25 = Vertice("m25")
+m26 = Vertice("m26")
+m27 = Vertice("m27")
+
+m31 = Vertice("m31")
+m32 = Vertice("m32")
+m33 = Vertice("m33")
+m34 = Vertice("m34")
+m35 = Vertice("m35")
+m36 = Vertice("m36")
+
+
+m41 = Vertice("m41")
+m42 = Vertice("m42")
+m43 = Vertice("m43")
+m44 = Vertice("m44")
+m45 = Vertice("m45")
+m46 = Vertice("m46")
+
+m51 = Vertice("m51")
+m52 = Vertice("m52")
+m53 = Vertice("m53")
+m54 = Vertice("m54")
+m55 = Vertice("m55")
+m56 = Vertice("m56")
+m57 = Vertice("m57")
+
+m61 = Vertice("m61")
+m62 = Vertice("m62")
+m63 = Vertice("m63")
+m64 = Vertice("m64")
+m65 = Vertice("m65")
+m66 = Vertice("m66")
+m67 = Vertice("m67")
+
+m71 = Vertice("m71")
+m72 = Vertice("m72")
+m73 = Vertice("m73")
+m74 = Vertice("m74")
+m75 = Vertice("m75")
+m76 = Vertice("m76")
+m77 = Vertice("m77")
+
+m81 = Vertice("m81")
+m82 = Vertice("m82")
+m83 = Vertice("m83")
+m84 = Vertice("m84")
+m85 = Vertice("m85")
+m86 = Vertice("m86")
+m87 = Vertice("m87")
+
+e1 = Aresta("e1",m11,m21,1,True)
+e2 = Aresta("e2",m13,m22,1,True)
+e3 = Aresta("e3",m11,m22,1,True)
+e4 = Aresta("e4",m16,m26,1,True)
+
+e5 = Aresta("e5",m21,m31,1,True)
+e6 = Aresta("e6",m22,m32,1,True)
+e7 = Aresta("e7",m12,m33,1,True)
+e8 = Aresta("e8",m12,m34,1,True)
+
+e9 = Aresta("e9",m21,m41,1,True)
+e10 = Aresta("e10",m23,m41,1,True)
+e11 = Aresta("e11",m23,m42,1,True)
+e12 = Aresta("e12",m32,m42,1,True)
+e13 = Aresta("e13",m36,m43,1,True)
+e14 = Aresta("e14",m34,m44,1,True)
+e15 = Aresta("e15",m27,m45,1,True)
+
+e16 = Aresta("e16",m33,m51,1,True)
+e17 = Aresta("e17",m12,m52,1,True)
+e18 = Aresta("e18",m32,m53,1,True)
+e19 = Aresta("e19",m44,m54,1,True)
+e20 = Aresta("e20",m44,m55,1,True)
+e21 = Aresta("e21",m44,m57,1,True)
+
+e22 = Aresta("e22",m51,m61,1,True)
+e23 = Aresta("e23",m52,m62,1,True)
+e24 = Aresta("e24",m32,m63,1,True)
+e25 = Aresta("e25",m54,m64,1,True)
+e26 = Aresta("e26",m46,m65,1,True)
+e27 = Aresta("e27",m57,m67,1,True)
+
+e28 = Aresta("e28",m42,m71,1,True)
+e29 = Aresta("e29",m22,m72,1,True)
+e30 = Aresta("e30",m41,m73,1,True)
+e31 = Aresta("e31",m42,m73,1,True)
+e32 = Aresta("e32",m64,m74,1,True)
+e33 = Aresta("e33",m65,m75,1,True)
+e34 = Aresta("e34",m67,m77,1,True)
+
+e35 = Aresta("e35",m62,m81,1,True)
+e36 = Aresta("e36",m75,m82,1,True)
+e37 = Aresta("e37",m32,m83,1,True)
+e38 = Aresta("e38",m74,m84,1,True)
+e39 = Aresta("e39",m77,m87,1,True)
+
+#Telemática
+
+t11 = Vertice("t11")
+t12 = Vertice("t12")
+t13 = Vertice("t13")
+t14 = Vertice("t14")
+t15 = Vertice("t15")
+t16 = Vertice("t16")
+t17 = Vertice("t17")
+
+t21 = Vertice("t21")
+t22 = Vertice("t22")
+t23 = Vertice("t23")
+t24 = Vertice("t24")
+t25 = Vertice("t25")
+t26 = Vertice("t26")
+t27 = Vertice("t27")
+
+t31 = Vertice("t31")
+t32 = Vertice("t32")
+t33 = Vertice("t33")
+t34 = Vertice("t34")
+t35 = Vertice("t35")
+t36 = Vertice("t36")
+t37 = Vertice("t37")
+
+t41 = Vertice("t41")
+t42 = Vertice("t42")
+t43 = Vertice("t43")
+t44 = Vertice("t44")
+t45 = Vertice("t45")
+t46 = Vertice("t46")
+t47 = Vertice("t47")
+
+t51 = Vertice("t51")
+t52 = Vertice("t52")
+t53 = Vertice("t53")
+t54 = Vertice("t54")
+t55 = Vertice("t55")
+t56 = Vertice("t56")
+t57 = Vertice("t57")
+
+t61 = Vertice("t61")
+t62 = Vertice("t62")
+t63 = Vertice("t63")
+t64 = Vertice("t64")
+t65 = Vertice("t65")
+t66 = Vertice("t66")
+
+g1 = Aresta("g1",t11,t21,1,True)
+g2 = Aresta("g2",t12,t22,1,True)
+g3 = Aresta("g3",t16,t22,1,True)
+g4 = Aresta("g4",t12,t23,1,True)
+g5 = Aresta("g5",t16,t23,1,True)
+g6 = Aresta("g6",t13,t24,1,True)
+g7 = Aresta("g7",t16,t26,1,True)
+
+g8 = Aresta("g8",t21,t31,1,True)
+g9 = Aresta("g9",t26,t32,1,True)
+g10 = Aresta("g10",t22,t33,1,True)
+g11 = Aresta("g11",t23,t33,1,True)
+g12 = Aresta("g12",t26,t33,1,True)
+g13 = Aresta("g13",t25,t34,1,True)
+g14 = Aresta("g14",t25,t35,1,True)
+g15 = Aresta("g15",t21,t36,1,True)
+g16 = Aresta("g16",t24,t36,1,True)
+
+g17 = Aresta("g17",t31,t41,1,True)
+g18 = Aresta("g18",t31,t42,1,True)
+g19 = Aresta("g19",t32,t43,1,True)
+g20 = Aresta("g20",t32,t44,1,True)
+g21 = Aresta("g21",t33,t44,1,True)
+g22 = Aresta("g22",t33,t45,1,True)
+g23 = Aresta("g23",t21,t46,1,True)
+g24 = Aresta("g24",t34,t46,1,True)
+
+g25 = Aresta("g25",t41,t51,1,True)
+g26 = Aresta("g26",t41,t52,1,True)
+g27 = Aresta("g27",t44,t53,1,True)
+g28 = Aresta("g28",t44,t54,1,True)
+g29 = Aresta("g29",t37,t55,1,True)
+g30 = Aresta("g30",t41,t55,1,True)
+g31 = Aresta("g31",t44,t55,1,True)
+
+g32 = Aresta("g32",t42,t61,1,True)
+g33 = Aresta("g33",t51,t61,1,True)
+g34 = Aresta("g34",t53,t62,1,True)
+
+
+#contrucao de edificios
+
+h11 = Vertice("h11")
+h12 = Vertice("h12")
+h13 = Vertice("h13")
+h14 = Vertice("h14")
+h15 = Vertice("h15")
+h16 = Vertice("h16")
+h17 = Vertice("h17")
+h18 = Vertice("h18")
+
+h21 = Vertice("h21")
+h22 = Vertice("h22")
+h23 = Vertice("h23")
+h24 = Vertice("h24")
+h25 = Vertice("h25")
+h26 = Vertice("h26")
+h27 = Vertice("h27")
+
+h31 = Vertice("h31")
+h32 = Vertice("h32")
+h33 = Vertice("h33")
+h34 = Vertice("h34")
+h35 = Vertice("h35")
+h36 = Vertice("h36")
+h37 = Vertice("h37")
+h38 = Vertice("h38")
+
+h41 = Vertice("h41")
+h42 = Vertice("h42")
+h43 = Vertice("h43")
+h44 = Vertice("h44")
+h45 = Vertice("h45")
+h46 = Vertice("h46")
+h47 = Vertice("h47")
+
+h51 = Vertice("h51")
+h52 = Vertice("h52")
+h53 = Vertice("h53")
+h54 = Vertice("h54")
+h55 = Vertice("h55")
+h56 = Vertice("h56")
+h57 = Vertice("h57")
+
+h61 = Vertice("h61")
+h62 = Vertice("h62")
+h63 = Vertice("h63")
+h64 = Vertice("h64")
+h65 = Vertice("h65")
+h66 = Vertice("h66")
+h67 = Vertice("h67")
+h68 = Vertice("h68")
+
+h71 = Vertice("h71")
+
+
+k1 = Aresta("k1",h15,h21,1,True)
+k2 = Aresta("k2",h14,h23,1,True)
+k3 = Aresta("k3",h11,h24,1,True)
+k4 = Aresta("k4",h17,h24,1,True)
+k5 = Aresta("k5",h15,h25,1,True)
+k6 = Aresta("k6",h17,h26,1,True)
+k7 = Aresta("k7",h17,h27,1,True)
+
+k8 = Aresta("k8",h15,h32,1,True)
+k9 = Aresta("k9",h21,h32,1,True)
+k10 = Aresta("k10",h21,h33,1,True)
+k11 = Aresta("k11",h15,h34,1,True)
+k12 = Aresta("k12",h23,h35,1,True)
+k13 = Aresta("k13",h26,h36,1,True)
+k14 = Aresta("k14",h23,h37,1,True)
+k15 = Aresta("k15",h24,h38,1,True)
+
+k16 = Aresta("k16",h17,h41,1,True)
+k17 = Aresta("k17",h21,h41,1,True)
+k18 = Aresta("k18",h17,h42,1,True)
+k19 = Aresta("k19",h21,h42,1,True)
+k20 = Aresta("k20",h11,h43,1,True)
+k21 = Aresta("k21",h23,h43,1,True)
+k22 = Aresta("k22",h35,h43,1,True)
+k23 = Aresta("k23",h35,h45,1,True)
+k24 = Aresta("k24",h17,h46,1,True)
+k25 = Aresta("k25",h32,h46,1,True)
+
+k26 = Aresta("k26",h37,h51,1,True)
+k27 = Aresta("k27",h45,h51,1,True)
+k28 = Aresta("k28",h46,h52,1,True)
+k29 = Aresta("k29",h51,h52,1,True)
+k30 = Aresta("k30",h17,h53,1,True)
+k31 = Aresta("k31",h32,h53,1,True)
+k32 = Aresta("k32",h47,h54,1,True)
+k33 = Aresta("k33",h17,h55,1,True)
+k34 = Aresta("k34",h32,h55,1,True)
+k35 = Aresta("k35",h46,h56,1,True)
+k36 = Aresta("k36",h43,h57,1,True)
+
+k37 = Aresta("k37",h31,h62,1,True)
+k38 = Aresta("k38",h57,h62,1,True)
+k39 = Aresta("k39",h37,h64,1,True)
+k40 = Aresta("k40",h45,h64,1,True)
+k41 = Aresta("k41",h22,h66,1,True)
+k42 = Aresta("k42",h31,h67,1,True)
+k43 = Aresta("k43",h57,h67,1,True)
+
+k44 = Aresta("k44",h13,h71,1,True)
+k45 = Aresta("k45",h22,h71,1,True)
+
