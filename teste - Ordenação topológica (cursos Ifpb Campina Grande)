@@ -1,0 +1,109 @@
+# Aluno: Luan Ferreira dos Reis - Roteiro 8
+
+import unittest
+from grafo import *
+
+class TestGrafo(unittest.TestCase):
+
+    def setUp(self):
+        self.computacao = Grafo([],[a1 ,a2 ,a3 ,a4 ,a5 ,a6 ,a7 ,a8 ,a9 ,a10 ,a11 ,a12 ,a13 ,a14 ,a15 ,a16 ,a17 ,a18 ,a19 ,a20 ,a21 ,a22 ,a23 ,a24 ,a25 ,a26 ,a27 ,a28 ,a29 ,a30 ,a31 ,a32 ,a33 ,a34 ,a35 ,a36 ,a37 ,a38 ,a39 ,a40 ,a41 ,a42 ,a43 ,a44 ,a45 ,a46 ,a47 ,a48])
+        self.letras = Grafo([],[b1 ,b2 ,b3 ,b4 ,b5 ,b6 ,b7 ,b8 ,b9 ,b10 ,b11 ,b12 ,b13 ,b14 ,b15 ,b16 ,b17 ,b18 ,b19 ,b20 ,b21 ,b22 ,b23 ,b24 ,b25 ,b26 ,b27 ,b28 ,b29 ,b30 ,b31 ,b32 ,b33 ,b34 ,b35 ,b36 ,b37 ,b38 ,b39 ,b40 ,b41 ,b42 ,b43 ,b44 ,b45 ,b46])
+        self.fisica = Grafo([],[c1 ,c2 ,c3 ,c4 ,c5 ,c6 ,c7 ,c8 ,c9 ,c10 ,c11 ,c12 ,c13 ,c14 ,c15 ,c16 ,c17 ,c18 ,c19 ,c20 ,c21 ,c22 ,c23 ,c24 ,c25 ,c26 ,c27 ,c28 ,c29 ,c30 ,c31 ,c32 ,c33 ,c34 ,c35 ,c36 ,c37 ,c38 ,c39 ,c40 ,c41 ,c42 ,c43 ,c44 ,c45])
+        self.matematica = Grafo([],[e1 ,e2 ,e3 ,e4 ,e5 ,e6 ,e7 ,e8 ,e9 ,e10 ,e11 ,e12 ,e13 ,e14 ,e15 ,e16 ,e17 ,e18 ,e19 ,e20 ,e21 ,e22 ,e23 ,e24 ,e25 ,e26 ,e27 ,e28 ,e29 ,e30 ,e31 ,e32 ,e33 ,e34 ,e35 ,e36 ,e37 ,e38 ,e39])
+        self.telematica = Grafo([],[g1 ,g2 ,g3 ,g4 ,g5 ,g6 ,g7 ,g8 ,g9 ,g10 ,g11 ,g12 ,g13 ,g14 ,g15 ,g16 ,g17 ,g18 ,g19 ,g20 ,g21 ,g22 ,g23 ,g24 ,g25 ,g26 ,g27 ,g28 ,g29 ,g30 ,g31 ,g32 ,g33 ,g34 ])
+        self.construcao = Grafo([],[k1 ,k2 ,k3 ,k4 ,k5 ,k6 ,k7 ,k8 ,k9 ,k10 ,k11 ,k12 ,k13 ,k14 ,k15 ,k16 ,k17 ,k18 ,k19 ,k20 ,k21 ,k22 ,k23 ,k24 ,k25 ,k26 ,k27 ,k28 ,k29 ,k30 ,k31 ,k32 ,k33 ,k34 ,k35 ,k36 ,k37 ,k38 ,k39 ,k40 ,k41 ,k42 ,k43 ,k44 ,k45 ])
+
+
+    def test_computacao(self):
+        self.assertEqual(self.computacao.khan(), [d11,d14,d15,d25,d24,d34,d43,d53,d62,d72,d52,d74,d21,d16,d31,d35,d41,d51,d61,d64,d75,d83,d85,d94,d22,d33,d42,d54,d63,d73,d82,d92,d103,d26,d44,d81,d36,d55,d84,d45,d93,d65])
+        self.assertEqual(self.computacao.dfs([],d11), [d74,d83,d92,d103,d52,d24,d72,d54,d53,d43,d62,d16,d26,d45,d44,d93,d36,d55,d65,d15,d14,d35,d34,d81,d63,d73,d82,d25,d33,d22,d42,d11,d21,d41,d31,d64,d75,d85,d51,d61,d94,d84])
+
+    def test_letras(self):
+        self.assertEqual(self.letras.khan(), [l11,l22,l17,l24,l36,l37,l13,l45,l56,l67,l76,l83,l21,l26,l32,l33,l42,l47,l52,l54,l57,l64,l74,l27,l84,l88,l12,l25,d34,l44,l53,l68,l77,l87,l23,l35,l46,l55,l63,l75,l31,l51,l62,l71,l78,l43,l72,l61,l73])
+        self.assertEqual(self.letras.dfs([],l11), [l27,l45,l76,l54,l68,l64,l78,l74,l88,l84,l13,l53,l77,l87,l37,l67,l57,l47,l36,l24,d34,l17,l83,l26,l12,l25,l44,l35,l75,l63,l55,l23,l46,l11,l22,l56,l21,l33,l42,l32,l52,l31,l73,l71,l72,l62,l61,l51,l43])
+
+    def test_fisica(self):
+        self.assertEqual(self.fisica.khan(), [f11,f12,f23,f14,f33,f45,f53,f43,f56,f65,f16,f21,f24,f31,f41,f46,f54,f63,f66,f72,f74,f82,f22,f32,f51,f55,f64,f73,f83,f15,f42,f61,f71,f84,f25,f81,f52,f85,f62])
+        self.assertEqual(self.fisica.dfs([], f11), [f16,f65,f81,f56,f66,f73,f83,f43,f55,f15,f25,f85,f14,f12,f24,f23,f33,f45,f53,f11,f22,f21,f63,f32,f31,f74,f82,f54,f46,f42,f41,f72,f52,f62,f51,f64,f61,f71,f84])
+
+    def test_matematica(self):
+        self.assertEqual(self.matematica.khan(), [m11,m13,m16,m12,m34,m23,m36,m44,m52,m54,m57,m62,m64,m67,m74,m77,m84,m21,m26,m33,m43,m51,m55,m46,m81,m87,m22,m32,m42,m53,m63,m71,m83,m31,m27,m61,m72,m41,m65,m75,m45,m82,m73])
+        self.assertEqual(self.matematica.dfs([], m11), [m46,m65,m75,m82,m27,m45,m36,m43,m23,m12,m52,m62,m81,m34,m44,m57,m67,m77,m87,m55,m54,m64,m74,m84,m33,m51,m61,m16,m26,m13,m11,m22,m72,m32,m83,m63,m53,m42,m71,m21,m41,m73,m31])
+
+    def test_telematica(self):
+        self.assertEqual(self.telematica.khan(), [t11,t12,t16,t13,t26,t32,t25,t35,t43,t37,t21,t23,t31,t34,t41,t46,t52,t22,t33,t42,t45,t24,t44,t53,t55,t62,t36,t54,t51,t61])
+        self.assertEqual(self.telematica.dfs([], t11), [t37,t25,t35,t34,t13,t24,t16,t26,t32,t43,t12,t23,t22,t33,t45,t44,t54,t53,t62,t11,t21,t46,t36,t31,t42,t41,t55,t52,t51,t61])
+
+    def test_construcao(self):
+        self.assertEqual(self.construcao.khan(), [h15,h14,h11,h17,h26,h34,h36,h47,h31,h22,h13,h21,h24,h27,h33,h38,h42,h54,h66,h71,h23,h32,h37,h46,h53,h56,h25,h41,h55,h35,h45,h64,h43,h57,h67,h51,h62,h52])
+        self.assertEqual(self.construcao.dfs([], h11), [h13,h22,h71,h66,h31,h47,h54,h17,h27,h26,h36,h14,h23,h37,h35,h45,h64,h51,h15,h34,h25,h21,h42,h41,h33,h32,h55,h53,h46,h56,h52,h11,h43,h57,h67,h62,h24,h38])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
